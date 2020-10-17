@@ -48,7 +48,7 @@ public class CourierDaoMysql implements BaseCourierDao {
     /**
      * 更新最近登录时间
      */
-    public static final String SQL_UPDATE_LOGIN_TIME="UPDATE COURIER SET LOGIN_TIME=NOW() WHERE SYS_PHONE=?";
+    public static final String SQL_UPDATE_LOGIN_TIME="UPDATE COURIER SET LOGIN_TIME=NOW(),REGISTER_TIME= WHERE SYS_PHONE=?";
     /**
      * 快递的删除
      */

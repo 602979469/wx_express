@@ -262,7 +262,8 @@ public class JdbcUtil {
     private static <T> void fillInData(Object object, Class<T> className, ResultSet resultSet, boolean toMap) throws SQLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         ResultSetMetaData metaData = resultSet.getMetaData();
         //获取一条查询记录的字段数
-        for (int i = 1; i < metaData.getColumnCount() + 1; i++) {
+        int columnCount = metaData.getColumnCount();
+        for (int i = 1; i < columnCount + 1; i++) {
             //取出每一个字段的名字
             String columnName = metaData.getColumnName(i);
             StringBuffer sb = new StringBuffer();

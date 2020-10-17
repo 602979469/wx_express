@@ -9,6 +9,7 @@ import com.aliyuncs.http.MethodType;
 import com.aliyuncs.profile.DefaultProfile;
 import com.google.gson.Gson;
 import com.kaikeba.bean.Courier;
+import com.kaikeba.bean.User;
 import org.apache.commons.beanutils.BeanUtils;
 
 import javax.servlet.http.HttpSession;
@@ -29,26 +30,7 @@ public class WebUtil {
 
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private static HttpSession session;
-
-
-    public static void setSession(HttpSession session) {
-        WebUtil.session = session;
-    }
-
-    public static HttpSession getSession() {
-        return session;
-    }
-
-
-    public static void setLoginSMS(String userPhone,String code){
-        session.setAttribute(userPhone,code);
-    }
-
-    public static boolean getLoginSMS(String userPhone,String code){
-        String attribute = (String) session.getAttribute(userPhone);
-        return Objects.equals(attribute,code);
-    }
+    private final static Random r = new Random();
 
     /**
      * 解析int
@@ -96,7 +78,7 @@ public class WebUtil {
         return bean;
     }
 
-    private final static Random r = new Random();
+
 
 
     /**
@@ -131,102 +113,5 @@ public class WebUtil {
             return "";
         }
         return format.format(date);
-    }
-
-    public static boolean sendLoginMessage(String phoneNumber, String code){
-        return sendTemplate(phoneNumber,code,"SMS_204275322");
-    }
-
-    public static boolean sendTakeCodeMessage(String phoneNumber, String code){
-        return sendTemplate(phoneNumber,code,"SMS_204111140");
-    }
-
-
-    /**
-     * 发送
-     * [快递e站]您的验证码：${code},您正在进行身份验证，打死不告诉别人。
-     *
-     * @param phoneNumber 电话号码
-     * @param code        代码
-     * @return boolean
-     */
-    private static boolean sendTemplate(String phoneNumber, String code,String template) {
-        DefaultProfile profile = DefaultProfile.getProfile("cn-hangzhou", "LTAI4G1VYLEusvr8FeoAyT4Y", "2OyykFIyDjLDoM7hKhaGGbjyyhqgvs");
-        IAcsClient client = new DefaultAcsClient(profile);
-        CommonRequest request = new CommonRequest();
-        request.setSysMethod(MethodType.POST);
-        request.setSysDomain("dysmsapi.aliyuncs.com");
-        request.setSysVersion("2017-05-25");
-        request.setSysAction("SendSms");
-        request.putQueryParameter("RegionId", "cn-hangzhou");
-        request.putQueryParameter("PhoneNumbers", phoneNumber);
-        request.putQueryParameter("SignName", "快递e站");
-        request.putQueryParameter("TemplateCode", template);
-        request.putQueryParameter("TemplateParam", "{\"code\":\""+code+"\"}");
-        try {
-            CommonResponse response = client.getCommonResponse(request);
-            System.out.println(response.getData());
-            String json = response.getData();
-            Gson g = new Gson();
-            HashMap result = g.fromJson(json, HashMap.class);
-            if ("OK".equals(result.get("Message"))) {
-                return true;
-            } else {
-                System.out.println("短信发送失败，原因：" + result.get("Message"));
-            }
-        } catch (ClientException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    /**
-     * 阿里巴巴短信模板对象
-     *
-     * @author Faker
-     * @date 2020/10/02
-     */
-    public static class AlibabaMessage {
-        String area="陆家嘴18号快递e栈";
-        String code;
-        String company;
-        String sysPhone;
-
-        public AlibabaMessage(String code, String company, String sysPhone) {
-            this.code = code;
-            this.company = company;
-            this.sysPhone = sysPhone;
-        }
-    }
-
-    public static Courier getLoginUser(){
-        return (Courier) session.getAttribute("adminUserName");
-    }
-
-
-    public static String getLoginUsername() {
-        if (session.getAttribute("adminUserName") == null) {
-            return null;
-        }
-        return ((Courier) (session.getAttribute("adminUserName"))).getName();
-    }
-
-    public static String getSysPhone() {
-        if (session.getAttribute("adminUserName") == null) {
-            return null;
-        }
-        return ((Courier) session.getAttribute("adminUserName")).getSysPhone();
-    }
-
-    public static void removeUsername() {
-        setLoginUser(null);
-    }
-
-    public static void setLoginUser(Courier courier) {
-        if (courier == null) {
-            session.removeAttribute("adminUserName");
-        } else {
-            session.setAttribute("adminUserName", courier);
-        }
     }
 }

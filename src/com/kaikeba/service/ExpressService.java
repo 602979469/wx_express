@@ -1,8 +1,10 @@
 package com.kaikeba.service;
 
+import com.kaikeba.bean.Courier;
 import com.kaikeba.bean.Express;
 import com.kaikeba.dao.BaseExpressDao;
 import com.kaikeba.dao.imp.ExpressDaoMysql;
+import com.kaikeba.util.LoginUtil;
 import com.kaikeba.util.WebUtil;
 
 import java.util.List;
@@ -91,11 +93,11 @@ public class ExpressService {
             return insert(express);
         }
         express.setCode(code);
-        express.setSysPhone(WebUtil.getSysPhone());
+        express.setSysPhone(((Courier) LoginUtil.getUser()).getSysPhone());
         boolean flag = dao.insert(express);
         //录入成功,发送短信
         if (flag) {
-            WebUtil.sendTakeCodeMessage(express.getUserPhone(),express.getCode());
+            LoginUtil.sendTakeCodeMessage(express.getUserPhone(),express.getCode());
         }
         return flag;
     }
@@ -174,5 +176,9 @@ public class ExpressService {
      */
     public static boolean delete(int id) {
         return dao.delete(id);
+    }
+
+    public static List<Map<String, Object>> lazyBoard(int status) {
+        return dao.lazyBoard(status);
     }
 }

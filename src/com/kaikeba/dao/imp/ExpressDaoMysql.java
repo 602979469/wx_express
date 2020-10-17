@@ -19,6 +19,22 @@ public class ExpressDaoMysql implements BaseExpressDao {
      * 用于查询数据库中的全部快递（总数+新增），待取件快递（总数+新增）
      */
     public static final String SQL_CONSOLE = "SELECT COUNT(ID) totalExpress,COUNT(TO_DAYS(IN_TIME)=TO_DAYS(NOW()) OR NULL) dayExpress,COUNT(STATUS=0 OR NULL) needTakeExpress,COUNT(TO_DAYS(IN_TIME)=TO_DAYS(NOW()) AND STATUS=0 OR NULL) insertExpress FROM EXPRESS";
+
+    /**
+     * 懒人排行，按照总的快递数量排行
+     */
+    public static final String SQL_LAZY_BOARD_TOTAL="SELECT username,COUNT(*) counts FROM EXPRESS GROUP BY USER_PHONE ORDER BY COUNTS DESC";
+
+    /**
+     * 懒人排行，按照今年的快递数量进行排行
+     */
+    public static final String SQL_LAZY_BOARD_YEAR="SELECT username,COUNT(*) counts FROM EXPRESS WHERE YEAR(IN_TIME)=YEAR(NOW()) GROUP BY USER_PHONE ORDER BY COUNTS DESC";
+
+    /**
+     * 懒人排行，按照本月的快递数量进行排行
+     */
+    public static final String SQL_LAZY_BOARD_MONTH="SELECT username,COUNT(*) counts FROM EXPRESS WHERE MONTH(IN_TIME)=MONTH(NOW()) GROUP BY USER_PHONE ORDER BY COUNTS DESC";
+
     /**
      * 用于查询数据库中的所有快递信息
      */
@@ -58,7 +74,7 @@ public class ExpressDaoMysql implements BaseExpressDao {
     /**
      * 快递的状态码改变（取件）
      */
-    public static final String SQL_UPDATE_STATUS = "UPDATE EXPRESS SET STATUS=1,OUT_TIME=NOW(),CODE=NULL WHERE CODE=?";
+    public static final String SQL_UPDATE_STATUS = "UPDATE EXPRESS SET STATUS=1,IN_TIME=IN_TIME,OUT_TIME=NOW(),CODE=NULL WHERE CODE=?";
 
     /**
      * 更新录入人电话
@@ -104,6 +120,10 @@ public class ExpressDaoMysql implements BaseExpressDao {
         }
     }
 
+    public List<Express> findAll(){
+        return findAll(false,0,0);
+    }
+
     /**
      * 根据快递单号，查询快递信息
      *
@@ -113,6 +133,23 @@ public class ExpressDaoMysql implements BaseExpressDao {
     @Override
     public Express findByNumber(String number) {
         return JdbcUtil.queryForObject(SQL_FIND_BY_NUMBER, Express.class, number);
+    }
+
+    @Override
+    public List<Map<String, Object>> lazyBoard(int staus) {
+        if (staus==2){
+            return  JdbcUtil.queryForMap(SQL_LAZY_BOARD_TOTAL);
+        }
+        else if (staus==1){
+            return  JdbcUtil.queryForMap(SQL_LAZY_BOARD_YEAR);
+        }
+        else if (staus==0){
+            return  JdbcUtil.queryForMap(SQL_LAZY_BOARD_MONTH);
+        }
+        else{
+            return null;
+        }
+
     }
 
     /**

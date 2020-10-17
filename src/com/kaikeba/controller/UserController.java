@@ -1,122 +1,77 @@
 package com.kaikeba.controller;
 
-import com.kaikeba.bean.*;
+import com.kaikeba.bean.Courier;
+import com.kaikeba.bean.Express;
+import com.kaikeba.bean.Message;
+import com.kaikeba.bean.User;
 import com.kaikeba.mvc.ResponseBody;
+import com.kaikeba.mvc.ResponseView;
 import com.kaikeba.service.ExpressService;
 import com.kaikeba.service.UserService;
+import com.kaikeba.util.LoginUtil;
 import com.kaikeba.util.WebUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
-/**
- * Created with IntelliJ IDEA.
- *
- * @Description :
- * @author: Faker
- * @date : 2020-10-01
- */
 public class UserController {
 
-    @ResponseBody("/user/console.do")
-    public String console(HttpServletRequest request, HttpServletResponse response) {
-        List<Map<String, Integer>> data = UserService.console();
-        Message msg = new Message();
-        msg.setStatus(data.size() == 0 ? -1 : 0);
-        msg.setData(data);
-        return WebUtil.toJson(msg);
-    }
-
-
-    @ResponseBody("/user/list.do")
-    public String list(HttpServletRequest request, HttpServletResponse response) {
-        //1.    获取查询数据的起始索引值
-        int offset = Integer.parseInt(request.getParameter("offset"));
-        //2.    获取当前页要查询的数据量
-        int pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
-        //3.    进行查询
-        List<User> list = UserService.findAll(true, offset, pageNumber);
-        List<BootStrapTableUser> list2 = new ArrayList<>();
-        for (User user : list) {
-            List<Express> byUserPhone = ExpressService.findByUserPhone(user.getUserPhone());
-            int expressNumber=byUserPhone==null?0:byUserPhone.size();
-            BootStrapTableUser user2 = new BootStrapTableUser(user.getId(), user.getUsername(),
-                    user.getUserPhone(),user.getIdCardNumber(), user.getPassword(),expressNumber,
-                    WebUtil.format(user.getRegisterTime()), WebUtil.format(user.getLoginTime()));
-            list2.add(user2);
+    /**
+     * 懒人排行
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @ResponseBody("/user/lazyBoard.do")
+    public String lazyBoard(HttpServletRequest request, HttpServletResponse response) {
+        List<Map<String, Object>> total = ExpressService.lazyBoard(2);
+        List<Map<String, Object>> year = ExpressService.lazyBoard(1);
+        List<Map<String, Object>> month = ExpressService.lazyBoard(0);
+        Map<String,Object> maps=new HashMap<>();
+        maps.put("total",total);
+        maps.put("year",year);
+        maps.put("month",month);
+        if(maps!=null && maps.size()>0){
+            return WebUtil.toJson(new Message(0,"查询成功",maps));
         }
-        List<Map<String, Integer>> console = UserService.console();
-        Integer total = console.get(0).get("totalUser");
-        //4.    将集合封装为 bootstrap-table识别的格式
-        ResultData<BootStrapTableUser> data = new ResultData<>();
-        data.setRows(list2);
-        data.setTotal(total);
-        return WebUtil.toJson(data);
+        return WebUtil.toJson(new Message(-1,"查询失败"));
     }
 
     @ResponseBody("/user/insert.do")
-    public String insert(HttpServletRequest request, HttpServletResponse response) {
+    public String insert(HttpServletRequest request,HttpServletResponse response){
         User user = WebUtil.toBean(request.getParameterMap(), new User());
-        boolean flag = UserService.insert(user);
-        Message msg = new Message();
-        if (flag) {
-            //录入成功
-            msg.setStatus(0);
-            msg.setResult("用户添加成功!");
-        } else {
-            //录入失败
-            msg.setStatus(-1);
-            msg.setResult("用户添加失败!");
+        if (UserService.insert(user)){
+            LoginUtil.setUser(user);
+            UserService.updateLoginTime(user.getUserPhone());
+            return WebUtil.toJson(new Message(0,"认证成功"));
         }
-        return WebUtil.toJson(msg);
+        return WebUtil.toJson(new Message(-1,"认证失败"));
     }
 
-    @ResponseBody("/user/find.do")
-    public String find(HttpServletRequest request, HttpServletResponse response) {
-        String userPhone = request.getParameter("userPhone");
-        User user = UserService.findByUserPhone(userPhone);
-        Message msg = new Message();
-        if (user == null) {
-            msg.setStatus(-1);
-            msg.setResult("用户不存在");
-        } else {
-            msg.setStatus(0);
-            msg.setResult("查询成功");
-            msg.setData(user);
-        }
-        return WebUtil.toJson(msg);
+    @ResponseView("/user/createQrCode.do")
+    public String createUserQrCode(HttpServletRequest request,HttpServletResponse response){
+        LoginUtil.setQrCode("userPhone_"+LoginUtil.getLoginUserPhone());
+        return "/personQrCode.html";
     }
 
-    @ResponseBody("/user/update.do")
-    public String update(HttpServletRequest request, HttpServletResponse response) {
-        User user = WebUtil.toBean(request.getParameterMap(), new User());
-        boolean flag = UserService.update(user);
-        Message msg = new Message();
-        if (flag) {
-            msg.setStatus(0);
-            msg.setResult("修改成功");
-        } else {
-            msg.setStatus(-1);
-            msg.setResult("修改失败");
-        }
-        return WebUtil.toJson(msg);
+    @ResponseView("/express/createQrCode.do")
+    public String createExpressQrCode(HttpServletRequest request,HttpServletResponse response){
+        LoginUtil.setQrCode("code_"+request.getParameter("code"));
+        return "/personQrCode.html";
     }
 
-    @ResponseBody("/user/delete.do")
-    public String delete(HttpServletRequest request, HttpServletResponse response) {
-        int id = WebUtil.parseInt(request.getParameter("id"), -1);
-        boolean flag = UserService.delete(id);
-        Message msg = new Message();
-        if (flag) {
-            msg.setStatus(0);
-            msg.setResult("删除成功");
-        } else {
-            msg.setStatus(-1);
-            msg.setResult("删除失败");
+    @ResponseBody("/qrCode/qrCode.do")
+    public String qrCode(HttpServletRequest request,HttpServletResponse response){
+        String qrCode = LoginUtil.getQrCode();
+        if (qrCode!=null){
+            return WebUtil.toJson(new Message(0,"获取二维码成功",qrCode));
         }
-        return WebUtil.toJson(msg);
+        return WebUtil.toJson(new Message(-1,"获取二维码失败"));
     }
+
 }

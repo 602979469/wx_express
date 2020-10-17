@@ -87,4 +87,13 @@ public class UserService {
         }
         return dao.update(newUser);
     }
+
+    /**
+     * 更新登录时间
+     * @param userPhone
+     * @return
+     */
+    public static boolean updateLoginTime(String userPhone){
+        return dao.updateLoginTime(userPhone);
+    }
 }

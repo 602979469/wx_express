@@ -1,5 +1,7 @@
 package com.kaikeba.dao;
 
+import com.kaikeba.bean.Express;
+
 import java.util.List;
 import java.util.Map;
 
@@ -34,12 +36,12 @@ public interface BaseCrud<T> {
      */
     List<T> findAll(boolean limit, int offset, int pageNumber);
 
-    /**
-     * 更新
-     *
-     * @param t t
-     * @return 修改的结果，true表示成功，false表示失败
-     */
+        /**
+         * 更新
+         *
+         * @param t t
+         * @return 修改的结果，true表示成功，false表示失败
+         */
     boolean update(T t);
 
     /**

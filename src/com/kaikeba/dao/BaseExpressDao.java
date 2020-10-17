@@ -3,6 +3,7 @@ package com.kaikeba.dao;
 import com.kaikeba.bean.Express;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 基地快递刀
@@ -20,6 +21,19 @@ public interface BaseExpressDao extends BaseCrud<Express> {
      */
     Express findByNumber(String number);
 
+
+    /**
+     * 用于查询所有快递
+     *
+     * @return 快递的集合
+     */
+    List<Express> findAll();
+
+    /**
+     * 懒人排行
+     * @return
+     */
+    List<Map<String, Object>> lazyBoard(int status);
     /**
      * 根据快递取件码，查询快递信息
      *

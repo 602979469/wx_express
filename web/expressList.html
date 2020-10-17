@@ -1,109 +1,150 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<style type="text/css">
-	body{
-		margin: 0;
-		padding: 0;
-		background-color: #eeeeee;
-		font-family: "楷体";
-	}
-	.item{
-		margin: 20px;
-		margin-bottom: 50px;
-	}
-	.imte_top{
-		text-align: center;
-	}
-	.imte_top>span{
-		font-size:14px;
-		display: inline-block;
-		padding: 5px 12px;
-		background-color: #ddd;
-		color:#fff;
-		border-radius: 5px;
-	}
-	.item_content{
-		background-color: #fff;
-		padding: 25px 15px;
-		margin-top: 6px;
-	}
-	.item_content_top_1{
-		font-size: 24px;
-		font-weight: bold;
-	}
-	.item_content_top_2{
-		color:#eee;
-		font-size: 14px;
-		margin: 5px 0px;
-	}
-	.item_content_top_3{
-		margin: 10px 0px;
-	}
-	.item_content_top_4{
-		margin: 10px 0px;
-	}
-	.item_content_bottom>a{
-		text-decoration: none;
-		color:#33e;
-	}
-</style>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <link rel="stylesheet" href="assets/css/layui.css">
+    <link rel="stylesheet" href="assets/css/admin.css">
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #eeeeee;
+            font-family: "楷体";
+        }
+
+        .item {
+            margin: 20px;
+            margin-bottom: 50px;
+        }
+
+        .imte_top {
+            text-align: center;
+        }
+
+        .imte_top > span {
+            font-size: 14px;
+            display: inline-block;
+            padding: 5px 12px;
+            background-color: #ddd;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .item_content {
+            background-color: #fff;
+            padding: 25px 15px;
+            margin-top: 6px;
+        }
+
+        .item_content_top_1 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .item_content_top_2 {
+            color: #eee;
+            font-size: 14px;
+            margin: 5px 0px;
+        }
+
+        .item_content_top_3 {
+            margin: 10px 0px;
+        }
+
+        .item_content_top_4 {
+            margin: 10px 0px;
+        }
+
+        .item_content_bottom > a {
+            text-decoration: none;
+            color: #33e;
+        }
+    </style>
 </head>
 <body>
-	
-	<div class="content">
-		
-				
-		<div class="item">
-			<div class="imte_top"><span>2019-10-12 12:00</span></div>
-			<div class="item_content">
-				<div class="item_content_top">
-					<div class="item_content_top_1">取件通知</div>
-					<div class="item_content_top_2">2019-10-12 12:00</div>
-					<div class="item_content_top_3">您有一个包裹到e栈了!</div>
-					<div class="item_content_top_4">
-						取件码:<span style="color:#05a">123123</span><br>
-						快递公司:顺丰快递<br>
-						运单号码:123123123213<br>
-						站点电话:13843838438<br>
-						取件地址:学校快件集散中心<br>
-					</div>
-				</div>
-				<hr>
-				<div class="item_content_bottom">
-					<a href="personQRcode.jsp?code=<%=e.getCode()%>">二维码</a>
-				</div>
-			</div>
-		</div>
-		
-	</div>
-	<div class="content">
-		
-				
-		<div class="item">
-			<div class="imte_top"><span>2019-10-12 12:00</span></div>
-			<div class="item_content">
-				<div class="item_content_top">
-					<div class="item_content_top_1">取件成功通知</div>
-					<div class="item_content_top_2">2019-10-12 12:00</div>
-					<div class="item_content_top_3">您有一个包裹从e栈取出了!</div>
-					<div class="item_content_top_4">
-						快递公司:顺丰快递<br>
-						运单号码:12313431123<br>
-						站点电话:13843838438<br>
-					</div>
-				</div>
-				<hr>
-				<div class="item_content_bottom">
-					<a href="#">有疑问 ? 点了也没用</a>
-				</div>
-			</div>
-		</div>
-		
-			
-	</div>
+
+<div id="status0_content" class="content">
+</div>
+<div id="status1_content" class="content">
+</div>
+<script src="assets/layui.js"></script>
+<script src="js/jquery2.1.4.js"></script>
+<script src="assets/layui.all.js"></script>
+<script src="assets/lay/modules/layer.js"></script>
+<script>
+    var layer = layui.layer;
+</script>
+
+<script type="text/javascript">
+
+    $(function () {
+        $.getJSON("express/list.do", null, function (data) {
+            if (data.status === -1) {
+                var template0 = "<div class=\"item\">\n" +
+                    "    <div class=\"item_content\">\n" +
+                    "        <div class=\"item_content_top\">\n" +
+                    "            <div class=\"item_content_top_1\">取件通知</div>\n" +
+                    "            <div class=\"item_content_top_3\">空空如也</div>\n" +
+                    "    </div>\n" +
+                    "</div></div>>";
+                $("#status0_content").append($(template0));
+                return false;
+            }
+            let status0 = data.data.status0;
+            let status1 = data.data.status1;
+            layer.msg(data.result);
+            for (var i = 0; i < status0.length; i++) {
+                var template0 = "<div class=\"item\">\n" +
+                    "    <div class=\"imte_top\"><span>" + status0[i].inTime + "</span></div>\n" +
+                    "    <div class=\"item_content\">\n" +
+                    "        <div class=\"item_content_top\">\n" +
+                    "            <div class=\"item_content_top_1\">取件通知</div>\n" +
+                    "            <div class=\"item_content_top_2\">" + status0[i].inTime + "</div>\n" +
+                    "            <div class=\"item_content_top_3\">您有一个包裹到e栈了!</div>\n" +
+                    "            <div class=\"item_content_top_4\">\n" +
+                    "                取件码:<span style=\"color:#05a\">" + status0[i].code + "</span><br>\n" +
+                    "                快递公司:" + status0[i].company + "<br>\n" +
+                    "                运单号码:" + status0[i].number + "<br>\n" +
+                    "                站点电话:" + status0[i].company + "<br>\n" +
+                    "            </div>\n" +
+                    "        </div>\n" +
+                    "        <br>\n" +
+                    "        <div class=\"item_content_bottom\">\n" +
+                    "            <a href=\"/express/createQrCode.do?code=" + status0[i].code + "\">二维码</a>\n" +
+                    "        </div>\n" +
+                    "    </div>\n" +
+                    "</div>";
+                $("#status0_content").append($(template0));
+            }
+            for (var i = 0; i < status1.length; i++) {
+                var template1 = "    <div class=\"item\">\n" +
+                    "        <div class=\"imte_top\"><span>" + status1[i].outTime + "</span></div>\n" +
+                    "        <div class=\"item_content\">\n" +
+                    "            <div class=\"item_content_top\">\n" +
+                    "                <div class=\"item_content_top_1\">取件成功通知</div>\n" +
+                    "                <div class=\"item_content_top_2\">" + status1[i].outTime + "</div>\n" +
+                    "                <div class=\"item_content_top_3\">您有一个包裹从e栈取出了!</div>\n" +
+                    "                <div class=\"item_content_top_4\">\n" +
+                    "                    快递公司:" + status1[i].company + "<br>\n" +
+                    "                    运单号码:" + status1[i].number + "<br>\n" +
+                    "                    站点电话:" + status1[i].sysPhone + "<br>\n" +
+                    "                </div>\n" +
+                    "            </div>\n" +
+                    "            <br>\n" +
+                    "            <div class=\"item_content_bottom\">\n" +
+                    "                <a href=\"#\">有疑问 ? 点了也没用</a>\n" +
+                    "            </div>\n" +
+                    "        </div>\n" +
+                    "    </div>";
+                $("#status1_content").append($(template1));
+
+            }
+        });
+    });
+</script>
+
+
 </body>
 </html>

@@ -14,6 +14,7 @@ import org.junit.Test;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * ExpressDaoMysql Tester.
@@ -125,7 +126,7 @@ public class ExpressDaoMysqlTest {
      */
     @Test
     public void testUpdateStatus() throws Exception {
-        System.out.println(dao.updateStatus("123456"));
+        System.out.println(dao.updateStatus("136796"));
     }
 
     /**
@@ -155,7 +156,7 @@ public class ExpressDaoMysqlTest {
 
     @Test
     public void insertExpress() throws SQLException {
-        String[] username={"铠", "橘右京", "项羽", "白起", "赵云", "李白", "韩信", "刘备", "鲁班七号",
+        String[] username = {"铠", "橘右京", "项羽", "白起", "赵云", "李白", "韩信", "刘备", "鲁班七号",
                 "墨子", "孙膑", "周瑜", "廉颇", "程咬金", "典韦", "后羿", "扁鹊", "李元芳",
                 "张飞", "刘禅", "兰陵王", "达摩", "曹操", "钟馗", "高渐离", "宫本武藏", "吕布", "嬴政",
                 "姜子牙", "老夫子", "狄仁杰",
@@ -163,24 +164,24 @@ public class ExpressDaoMysqlTest {
                 "百里玄策", "苏烈", "黄忠", "诸葛亮", "东皇太一", "杨戬", "后羿", "孙悟空", "张良", "刘邦", "达摩"
                 , "露娜", "妲己", "甄姬", "虞姬", "大乔", "小乔", "王昭君", "貂蝉", "芈月", "阿珂", "花木兰",
                 "武则天", "不知火舞", "孙尚香", "蔡文姬", "安琪拉", "钟无艳", "女蜗", "雅典娜"};
-        for (int j = 0; j < 5; j++) {
-            for (int i = 0; i < username.length; i++) {
-                Express express = new Express();
-                express.setUsername(username[i]);
-                express.setCompany("京东速运");
-                express.setSysPhone("15858298809");
-                if (i<10){
-                    express.setUserPhone("1380491588"+i);
-                }else{
-                    express.setUserPhone("138049158"+i);
-                }
-                express.setCode(WebUtil.getCode());
-                express.setNumber(WebUtil.getCode() + i);
-                dao.insert(express);
+        Random random = new Random();
+        for (int j = 0; j < 2000; j++) {
+            int i =random.nextInt(username.length);
+            Express express = new Express();
+            express.setUsername(username[i]);
+            express.setCompany("京东速运");
+            express.setSysPhone("15858298809");
+            if (i < 10) {
+                express.setUserPhone("1380491588" + i);
+            } else {
+                express.setUserPhone("138049158" + i);
             }
+            express.setCode(WebUtil.getCode());
+            express.setNumber(WebUtil.getCode() + i);
+            dao.insert(express);
         }
-
     }
+
 
     /**
      * username
@@ -189,8 +190,8 @@ public class ExpressDaoMysqlTest {
      * password
      */
     @Test
-    public void insertUser(){
-        String[] username={"铠", "橘右京", "项羽", "白起", "赵云", "李白", "韩信", "刘备", "鲁班七号",
+    public void insertUser() {
+        String[] username = {"铠", "橘右京", "项羽", "白起", "赵云", "李白", "韩信", "刘备", "鲁班七号",
                 "墨子", "孙膑", "周瑜", "廉颇", "程咬金", "典韦", "后羿", "扁鹊", "李元芳",
                 "张飞", "刘禅", "兰陵王", "达摩", "曹操", "钟馗", "高渐离", "宫本武藏", "吕布", "嬴政",
                 "姜子牙", "老夫子", "狄仁杰",
@@ -202,15 +203,14 @@ public class ExpressDaoMysqlTest {
         user.setPassword("123456");
         for (int i = 0; i < username.length; i++) {
             user.setUsername(username[i]);
-            if (i<10){
-                user.setIdCardNumber("53010219900307179"+i);
+            if (i < 10) {
+                user.setIdCardNumber("53010219900307179" + i);
+            } else {
+                user.setIdCardNumber("5301021990030717" + i);
             }
-            else{
-                user.setIdCardNumber("5301021990030717"+i);
-            }
-            String sql="select user_phone from express where username=?";
-            user.setUserPhone(JdbcUtil.queryForObject(sql,String.class,username[i]));
-           // user.setUserPhone();
+            String sql = "select user_phone from express where username=?";
+            user.setUserPhone(JdbcUtil.queryForObject(sql, String.class, username[i]));
+            // user.setUserPhone();
             UserService.insert(user);
         }
 

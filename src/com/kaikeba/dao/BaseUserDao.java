@@ -19,4 +19,12 @@ public interface BaseUserDao extends BaseCrud<User> {
      */
     User findByUserPhone(String userPhone);
 
+    /**
+     * 更新最近登录时间
+     *
+     * @param userPhone
+     * @return
+     */
+    boolean updateLoginTime(String userPhone);
+
 }

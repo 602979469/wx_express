@@ -1,5 +1,8 @@
 package com.kaikeba.mvc;
 
+import com.kaikeba.util.LoginUtil;
+import com.kaikeba.util.WebUtil;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +31,11 @@ public class DispatcherServlet extends javax.servlet.http.HttpServlet {
         //1.    获取用户请求的uri   /xx.do
         String uri = req.getRequestURI();
         HandlerMapping.MVCMapping mapping = HandlerMapping.get(uri);
+        if (LoginUtil.getSession()==null){
+            //session永不过期
+            req.getSession().setMaxInactiveInterval(-1);
+            LoginUtil.setSession(req.getSession());
+        }
         if( mapping == null){
             resp.sendError(404,"MVC：映射地址不存在："+uri);
             return;
@@ -40,6 +48,7 @@ public class DispatcherServlet extends javax.servlet.http.HttpServlet {
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
+        System.out.println(result);
         switch (mapping.getType()){
             case TEXT:
                 resp.getWriter().write((String)result);

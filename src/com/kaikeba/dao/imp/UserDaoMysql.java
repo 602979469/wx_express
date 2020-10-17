@@ -51,6 +51,10 @@ public class UserDaoMysql implements BaseUserDao {
     public static final String SQL_DELETE = "DELETE FROM USER WHERE ID=?";
 
     /**
+     * 更新最近登录时间
+     */
+    public static final String SQL_UPDATE_LOGIN_TIME="UPDATE USER SET LOGIN_TIME=NOW(),REGISTER_TIME=REGISTER_TIME WHERE USER_PHONE=?";
+    /**
      * 控制台
      *
      * @return {@link List<Map<String, Integer>>}
@@ -126,5 +130,13 @@ public class UserDaoMysql implements BaseUserDao {
     public boolean update(User user) {
         return JdbcUtil.update(SQL_UPDATE, user.getUsername(),
                 user.getIdCardNumber(), user.getPassword(), user.getUserPhone(), user.getId()) > 0;
+    }
+
+    /**
+     * 更新最近登录时间
+     */
+    @Override
+    public boolean updateLoginTime(String userPhone){
+        return JdbcUtil.update(SQL_UPDATE_LOGIN_TIME,userPhone)>0;
     }
 }
