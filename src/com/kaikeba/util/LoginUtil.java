@@ -12,7 +12,10 @@ import com.kaikeba.bean.Courier;
 import com.kaikeba.bean.User;
 
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Properties;
 
 public class LoginUtil {
 
@@ -30,6 +33,24 @@ public class LoginUtil {
      * 是用户登录还是管理员登录，如果是用户登录则为true，否则为false
      */
     private static boolean flag = true;
+
+    private static final String LOGIN_MESSAGE_TEMPLATE;
+
+    private static final String TAKE_CODE_TEMPLATE;
+
+    private static final String ACCESS_KEY_ID;
+
+    private static final String SECRET;
+
+    static {
+        InputStream is = LoginUtil.class.getClassLoader().getResourceAsStream("message.properties");
+        Properties properties = new Properties();
+        LOGIN_MESSAGE_TEMPLATE= (String) properties.get("login");
+        TAKE_CODE_TEMPLATE= (String) properties.get("code");
+        ACCESS_KEY_ID= (String) properties.get("accessKeyId");
+        SECRET= (String) properties.get("secret");
+    }
+
 
     /**
      * 设置登录用户类型
@@ -108,7 +129,7 @@ public class LoginUtil {
      * @return
      */
     public static boolean sendLoginMessage(String phoneNumber, String code) {
-        return sendTemplate(phoneNumber, code, "SMS_204275322");
+        return sendTemplate(phoneNumber, code, LOGIN_MESSAGE_TEMPLATE);
     }
 
     /**
@@ -121,21 +142,9 @@ public class LoginUtil {
      * @return
      */
     public static boolean sendTakeCodeMessage(String phoneNumber, String code) {
-        return sendTemplate(phoneNumber, code, "SMS_204111140");
+        return sendTemplate(phoneNumber, code, TAKE_CODE_TEMPLATE);
     }
 
-    /**
-     * 发送更换手机的验证码
-     *
-     * 验证码为：${code}，您正在尝试变更重要信息，请妥善保管账户信息。
-     *
-     * @param phoneNumber
-     * @param code
-     * @return
-     */
-    public static boolean sendUpdateUserPhone(String phoneNumber,String code){
-        return sendTemplate(phoneNumber,code,"SMS_204440374");
-    }
 
     /**
      * 短信模板，阿里云短信
@@ -145,7 +154,7 @@ public class LoginUtil {
      * @return boolean
      */
     private static boolean sendTemplate(String phoneNumber, String code, String template) {
-        DefaultProfile profile = DefaultProfile.getProfile("cn-hangzhou", "LTAI4G1VYLEusvr8FeoAyT4Y", "2OyykFIyDjLDoM7hKhaGGbjyyhqgvs");
+        DefaultProfile profile= DefaultProfile.getProfile("cn-hangzhou", ACCESS_KEY_ID, SECRET);
         IAcsClient client = new DefaultAcsClient(profile);
         CommonRequest request = new CommonRequest();
         request.setSysMethod(MethodType.POST);

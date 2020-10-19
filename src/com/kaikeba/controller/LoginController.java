@@ -58,10 +58,18 @@ public class LoginController {
     public String sendMessage(HttpServletRequest request, HttpServletResponse response) {
         String userPhone = request.getParameter("userPhone");
         String code=WebUtil.getCode();
-        //LoginUtil.sendLoginMessage(userPhone,code);
         LoginUtil.setLoginSMS(userPhone, "123456");
         return WebUtil.toJson(new Message(0,"短信发送成功"));
     }
+
+    @ResponseBody("/test/sendMessage.do")
+    public String testSendMessage(HttpServletRequest request, HttpServletResponse response) {
+        String userPhone = request.getParameter("userPhone");
+        String code=WebUtil.getCode();
+        LoginUtil.sendLoginMessage(userPhone, code);
+        return WebUtil.toJson(new Message(0,"短信发送成功"));
+    }
+
 
     /**
      * 个人信息
@@ -91,13 +99,5 @@ public class LoginController {
             message.setData((Courier)user);
         }
         return WebUtil.toJson(message);
-    }
-
-    @ResponseBody("/admin/sendUpdateUserPhone.do")
-    public String updateUserPhone(HttpServletRequest request,HttpServletResponse response){
-        String userPhone = request.getParameter("userPhone");
-        String code=WebUtil.getCode();
-        LoginUtil.sendUpdateUserPhone(userPhone,code);
-        return WebUtil.toJson(new Message(0,"短信发送成功"));
     }
 }
